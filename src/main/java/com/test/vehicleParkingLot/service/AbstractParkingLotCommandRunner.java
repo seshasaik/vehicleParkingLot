@@ -159,6 +159,8 @@ public abstract class AbstractParkingLotCommandRunner {
 
 		ParkingSlot parkingSlot = null;
 
+		boolean vehicleIsExist = false;
+
 		for (int i = 0; i < getTotalLotSize(); i++) {
 
 			if (vehicleParkingLot[i] == null) {
@@ -167,10 +169,25 @@ public abstract class AbstractParkingLotCommandRunner {
 				break;
 			}
 
-			if (vehicleParkingLot[i] != null && vehicleParkingLot[i].getVehicle() == null) {
-				parkingSlot = vehicleParkingLot[i];
-				break;
+			if (vehicleParkingLot[i] != null) {
+
+				if (vehicleParkingLot[i].getVehicle() == null) {
+					parkingSlot = vehicleParkingLot[i];
+					break;
+				} else if (vehicleParkingLot[i].getVehicle().getRegistrationNumber().equals(registrationNumber)) {
+					parkingSlot = vehicleParkingLot[i];
+					vehicleIsExist = true;
+					break;
+				}
+
 			}
+
+		}
+
+		if (vehicleIsExist) {
+			System.out.println(
+					String.format("\nSorry, vehicle is alreday found in %d slot", parkingSlot.getSlotNumber()));
+			return;
 		}
 
 		if (parkingSlot == null) {
@@ -294,7 +311,7 @@ public abstract class AbstractParkingLotCommandRunner {
 			return;
 		}
 
-		System.out.println("\n"+result.substring(0, result.length() - 1));
+		System.out.println("\n" + result.substring(0, result.length() - 1));
 
 	}
 

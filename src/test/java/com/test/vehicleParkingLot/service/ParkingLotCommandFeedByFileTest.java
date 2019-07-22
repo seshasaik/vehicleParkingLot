@@ -98,6 +98,10 @@ public class ParkingLotCommandFeedByFileTest {
 		assertTrue(parkingLotCommandFeeder.getOccupiedSlots() == 1);
 		assertTrue(parkingLotCommandFeeder.getNonOccupiedSlots() == 1);
 
+		// park vehicle which is already exist in given slot
+		parkingLotCommandFeeder.parseCommand("park KA01HH1234 White");
+		assertEquals(String.format("Sorry, vehicle is alreday found in %d slot", 1), getActualOutput());
+
 		// park vehicle
 		parkingLotCommandFeeder.parseCommand("park KA01HH9999 White");
 		assertEquals(String.format("Allocated slot number: %d", 2), getActualOutput());
