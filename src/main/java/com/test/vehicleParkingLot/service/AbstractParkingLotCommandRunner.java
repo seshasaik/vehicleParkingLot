@@ -75,19 +75,19 @@ public abstract class AbstractParkingLotCommandRunner {
 
 		// Validate command
 		if (!isValidCommand(commandParts[0])) {
-			System.out.println("Invalid command");
+			System.out.println("\nInvalid command");
 			return;
 		}
 
 		if (!commandParts[0].equals("create_parking_lot")) {
 
 			if (!isLotCreated()) {
-				System.out.println("Lot not yet created");
+				System.out.println("\nLot not yet created");
 				return;
 			}
 
 			if (getTotalLotSize() == 0) {
-				System.out.println("Lot is empty");
+				System.out.println("\nLot is empty");
 				return;
 			}
 		}
@@ -128,7 +128,7 @@ public abstract class AbstractParkingLotCommandRunner {
 
 			}
 		} catch (ArrayIndexOutOfBoundsException e) {
-			System.out.println("Insufficient arguments passed to command");
+			System.out.println("\nInsufficient arguments passed to command");
 			return;
 		}
 
@@ -147,12 +147,12 @@ public abstract class AbstractParkingLotCommandRunner {
 	private void createParkingLot(int lotSize) {
 
 		if (lotSize <= 0) {
-			System.out.println("Lot size should be positive integer");
+			System.out.println("\nLot size should be positive integer");
 			return;
 		}
 
 		vehicleParkingLot = new ParkingSlot[lotSize];
-		System.out.println(String.format("Created a parking lot with %d slots", getTotalLotSize()));
+		System.out.println(String.format("\nCreated a parking lot with %d slots", getTotalLotSize()));
 	}
 
 	private void putVehicleInAllocatedSlot(String registrationNumber, String color) {
@@ -174,20 +174,20 @@ public abstract class AbstractParkingLotCommandRunner {
 		}
 
 		if (parkingSlot == null) {
-			System.out.println("Sorry, parking lot is full");
+			System.out.println("\nSorry, parking lot is full");
 			return;
 		}
 
 		parkingSlot.addVehicle(new Vehicle(registrationNumber, color));
 
-		System.out.println(String.format("Allocated slot number: %d", parkingSlot.getSlotNumber()));
+		System.out.println(String.format("\nAllocated slot number: %d", parkingSlot.getSlotNumber()));
 	}
 
 	private void removeVehicleFromAllocatedSlot(int slotNumber) {
 
 		// Check if slotNumber is positive integer or not
 		if (slotNumber <= 0) {
-			System.out.println("Slot number should be positive integer");
+			System.out.println("\nSlot number should be positive integer");
 			return;
 		}
 
@@ -205,7 +205,7 @@ public abstract class AbstractParkingLotCommandRunner {
 					if (vehicleFound) {
 						vehicleParkingLot[i].removeVehicle();
 						System.out.println(
-								String.format("Slot number: %d is free", vehicleParkingLot[i].getSlotNumber()));
+								String.format("\nSlot number: %d is free", vehicleParkingLot[i].getSlotNumber()));
 
 					}
 
@@ -218,12 +218,12 @@ public abstract class AbstractParkingLotCommandRunner {
 		}
 
 		if (slotNumberFound && !vehicleFound) {
-			System.out.println("Slot is empty");
+			System.out.println("\nSlot is empty");
 			return;
 		}
 
 		if (!slotNumberFound) {
-			System.out.println("Slot is not found");
+			System.out.println("\nSlot is not found");
 			return;
 		}
 	}
@@ -234,10 +234,10 @@ public abstract class AbstractParkingLotCommandRunner {
 
 		for (int i = 0; i < getTotalLotSize(); i++) {
 
-			if (vehicleParkingLot[i] != null) {
+			if (vehicleParkingLot[i] != null && vehicleParkingLot[i].getVehicle() != null) {
 
 				if (++occupiedSlots == 1) {
-					System.out.println("Slot No.\t Registration No \t Colour \t");
+					System.out.println("\nSlot No.\t Registration No \t Colour \t");
 				}
 
 				System.out.println(String.format("%d \t %s \t %s \t", vehicleParkingLot[i].getSlotNumber(),
@@ -249,7 +249,7 @@ public abstract class AbstractParkingLotCommandRunner {
 		}
 
 		if (occupiedSlots == 0) {
-			System.out.println("Lot is empty");
+			System.out.println("\nLot is empty");
 		}
 
 	}
@@ -263,21 +263,23 @@ public abstract class AbstractParkingLotCommandRunner {
 
 				if (targetColumn.equals("SlotNumber")) { // Slot number query
 
-					if (queryParam.equals("color") && vehicleParkingLot[i].getVehicle().getColor().equals(value)) {
+					if (queryParam.equals("color")
+							&& vehicleParkingLot[i].getVehicle().getColor().equalsIgnoreCase(value)) {
 						// based on car color
-						result += vehicleParkingLot[i].getSlotNumber() + ",";
+						result += vehicleParkingLot[i].getSlotNumber() + ", ";
 
 					} else if (queryParam.equals("RegistrationNumber")
-							&& vehicleParkingLot[i].getVehicle().getRegistrationNumber().equals(value)) {
+							&& vehicleParkingLot[i].getVehicle().getRegistrationNumber().equalsIgnoreCase(value)) {
 						// based on registration_number
-						result += vehicleParkingLot[i].getSlotNumber() + ",";
+						result += vehicleParkingLot[i].getSlotNumber() + ", ";
 						break;
 					}
 
 				} else if (targetColumn.equals("RegistrationNumber")) { // registration numbers query
-					if (queryParam.equals("color") && vehicleParkingLot[i].getVehicle().getColor().equals(value)) {
+					if (queryParam.equals("color")
+							&& vehicleParkingLot[i].getVehicle().getColor().equalsIgnoreCase(value)) {
 						// based on car color
-						result += vehicleParkingLot[i].getVehicle().getRegistrationNumber() + ",";
+						result += vehicleParkingLot[i].getVehicle().getRegistrationNumber() + ", ";
 					}
 				}
 
@@ -285,12 +287,14 @@ public abstract class AbstractParkingLotCommandRunner {
 
 		}
 
-		if (result.trim().length() != 0) {
-			System.out.println("Not found");
+		result = result.trim();
+
+		if (result.length() == 0) {
+			System.out.println("\nNot found");
 			return;
 		}
-		result = result.trim();
-		System.out.println(result.substring(0, result.length() - 1));
+
+		System.out.println("\n"+result.substring(0, result.length() - 1));
 
 	}
 

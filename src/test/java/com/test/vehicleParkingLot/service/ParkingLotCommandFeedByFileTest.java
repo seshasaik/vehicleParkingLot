@@ -1,14 +1,13 @@
 package com.test.vehicleParkingLot.service;
 
-import static org.junit.Assert.*;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.PrintStream;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.BeforeClass;
 import org.junit.Test;
 
 public class ParkingLotCommandFeedByFileTest {
@@ -178,6 +177,181 @@ public class ParkingLotCommandFeedByFileTest {
 		// positive integer
 		parkingLotCommandFeeder.parseCommand("leave -40");
 		assertEquals("Slot number should be positive integer", getActualOutput());
+
+	}
+
+	@Test
+	public void testRegistrationNumbersForCarsWithColour() {
+
+		// Without vehicle parking lot creation try to query for registration number by
+		// given color
+		parkingLotCommandFeeder.parseCommand("registration_numbers_for_cars_with_colour White");
+		assertEquals("Lot not yet created", getActualOutput());
+
+		// create vehicle parking lot with 2 slots
+		parkingLotCommandFeeder.parseCommand("create_parking_lot 2");
+		assertEquals(String.format("Created a parking lot with %d slots", 2), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH1234 White");
+		assertEquals(String.format("Allocated slot number: %d", 1), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH9999 White");
+		assertEquals(String.format("Allocated slot number: %d", 2), getActualOutput());
+
+		// query for counting vehicle registration number by given color(white)
+		parkingLotCommandFeeder.parseCommand("registration_numbers_for_cars_with_colour White");
+		assertTrue("Present there are vehicles with white color is 2", 2 == getActualOutput().split(",").length);
+
+		// query for vehicle registration number by given color(white)
+		parkingLotCommandFeeder.parseCommand("registration_numbers_for_cars_with_colour White");
+		assertEquals("KA01HH1234, KA01HH9999", getActualOutput());
+
+		// query for counting vehicle registration number by given color(red)
+		parkingLotCommandFeeder.parseCommand("registration_numbers_for_cars_with_colour red");
+		assertTrue("Present there are vehicles with white color is 0", "Not found".equals(getActualOutput()));
+
+		// leave vehicle from slot 1
+		parkingLotCommandFeeder.parseCommand("leave 1");
+		assertEquals(String.format("Slot number: %d is free", 1), getActualOutput());
+
+		// query for vehicle registration number by given color(white) after leave one
+		// vehicle form slot
+		parkingLotCommandFeeder.parseCommand("registration_numbers_for_cars_with_colour White");
+		assertEquals("KA01HH9999", getActualOutput());
+
+		assertTrue(parkingLotCommandFeeder.getOccupiedSlots() == 1);
+		assertTrue(parkingLotCommandFeeder.getNonOccupiedSlots() == 1);
+
+	}
+
+	@Test
+	public void testSlotNumbersForCarsWithColour() {
+
+		// Without vehicle parking lot creation try to query for slot numbers by
+		// given color
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour White");
+		assertEquals("Lot not yet created", getActualOutput());
+
+		// create vehicle parking lot with 3 slots
+		parkingLotCommandFeeder.parseCommand("create_parking_lot 3");
+		assertEquals(String.format("Created a parking lot with %d slots", 3), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH1234 White");
+		assertEquals(String.format("Allocated slot number: %d", 1), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH7777 Red");
+		assertEquals(String.format("Allocated slot number: %d", 2), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH9999 White");
+		assertEquals(String.format("Allocated slot number: %d", 3), getActualOutput());
+
+		// query for counting slot numbers by given color(white)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour White");
+		assertTrue("Present there are vehicles with white color is 2", 2 == getActualOutput().split(",").length);
+
+		// query for slot number by given color(white)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour White");
+		assertEquals("1, 3", getActualOutput());
+
+		// query for counting slot number by given color(red)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour red");
+		assertTrue("Present there are vehicles with white red is 1", 1 == getActualOutput().split(",").length);
+
+		// query for vehicle slot number by given color(black)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour red");
+		assertEquals("2", getActualOutput());
+
+		// query for counting slot number by given color(black)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour black");
+		assertTrue("Present there are vehicles with white red is 0", "Not found".equals(getActualOutput()));
+
+		// leave vehicle from slot 1
+		parkingLotCommandFeeder.parseCommand("leave 1");
+		assertEquals(String.format("Slot number: %d is free", 1), getActualOutput());
+
+		// query for counting slot numbers by given color(white)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour White");
+		assertTrue("Present there are vehicles with white color is 1", 1 == getActualOutput().split(",").length);
+
+		// query for slot number by given color(white)
+		parkingLotCommandFeeder.parseCommand("slot_numbers_for_cars_with_colour White");
+		assertEquals("3", getActualOutput());
+
+		assertTrue(parkingLotCommandFeeder.getOccupiedSlots() == 2);
+		assertTrue(parkingLotCommandFeeder.getNonOccupiedSlots() == 1);
+
+	}
+
+	@Test
+	public void testSlotNumbersForCarsWithRegistrationNumber() {
+
+		// Without vehicle parking lot creation try to query for slot numbers by
+		// given registration number
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH9999");
+		assertEquals("Lot not yet created", getActualOutput());
+
+		// create vehicle parking lot with 3 slots
+		parkingLotCommandFeeder.parseCommand("create_parking_lot 3");
+		assertEquals(String.format("Created a parking lot with %d slots", 3), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH1234 White");
+		assertEquals(String.format("Allocated slot number: %d", 1), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH7777 Red");
+		assertEquals(String.format("Allocated slot number: %d", 2), getActualOutput());
+
+		// park vehicle
+		parkingLotCommandFeeder.parseCommand("park KA01HH9999 White");
+		assertEquals(String.format("Allocated slot number: %d", 3), getActualOutput());
+
+		// query for counting slot numbers by given registration number (which is
+		// already exist in lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH9999");
+		assertTrue("Present there are vehicles with registration number KA01HH9999 is 1",
+				1 == getActualOutput().split("/").length);
+
+		// query for slot number by given registration number (which is already exist in
+		// lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH9999");
+		assertEquals("3", getActualOutput());
+
+		// query for counting slot numbers by given registration number (which is
+		// already exist in lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH7777");
+		assertTrue("Present there are vehicles with registration number KA01HH7777 is 1",
+				1 == getActualOutput().split("/").length);
+
+		// query for slot number by given registration number (which is already exist in
+		// lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH7777");
+		assertEquals("2", getActualOutput());
+
+		// query for counting slot numbers by given registration number (which is not
+		// exist in lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number AP13HH7777");
+		assertTrue("Present there are vehicles with registration number AP13HH7777 is 0",
+				"Not found".equals(getActualOutput()));
+
+		// leave vehicle with registration number KA01HH9999 from slot 3 (which is
+		// already exist in lot but removed form lot)
+		parkingLotCommandFeeder.parseCommand("leave 3");
+		assertEquals(String.format("Slot number: %d is free", 3), getActualOutput());
+
+		// query for counting slot numbers by given registration number (which is
+		// previously exist in lot but removed form lot)
+		parkingLotCommandFeeder.parseCommand("slot_number_for_registration_number KA01HH9999");
+		assertTrue("Present there are vehicles with registration number KA01HH9999 is 0",
+				"Not found".equals(getActualOutput()));
+
+		assertTrue(parkingLotCommandFeeder.getOccupiedSlots() == 2);
+		assertTrue(parkingLotCommandFeeder.getNonOccupiedSlots() == 1);
 
 	}
 
